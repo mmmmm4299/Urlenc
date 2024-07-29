@@ -5,28 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Redirecting...</title>
     <script>
-        function sendToWebhook(data) {
-            fetch('https://discord.com/api/webhooks/1267432732368044175/J8BSNjYjtfAIKJcSVSa28lgHIQfO62N0UiyyZpYjdKlh6-VUU0YHgFLjpTvcBvNla_3w', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-        }
-
         window.onload = function() {
-            const hexUrl = window.location.pathname.replace('/Urlenc/hps-', '').replace(/-/g, '%');
-            const decodedUrl = decodeURIComponent(hexUrl);
-            const targetUrl = 'https://' + decodedUrl;
-
-            const ip = 'unknown';  // Getting the IP address in a client-side script is tricky and often not reliable.
-
-            sendToWebhook({
-                content: `Redirecting to: ${targetUrl}\nIP Address: ${ip}\nUser Agent: ${navigator.userAgent}`
-            });
-
-            window.location.href = targetUrl;
+            const hexUrl = window.location.pathname.replace('/Urlenc/hps/', '');
+            const decodedUrl = decodeURIComponent(hexUrl.replace(/%/g, '%25'));
+            window.location.href = 'https://' + decodedUrl;
         };
     </script>
 </head>
