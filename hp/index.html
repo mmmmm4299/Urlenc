@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting...</title>
+    <script>
+        window.onload = function() {
+            const hexUrl = window.location.pathname.replace('/Urlenc/hp/', '');
+            const decodedUrl = decodeURIComponent(hexUrl.replace(/%/g, '%25'));
+            window.location.href = 'http://' + decodedUrl;
+        };
+    </script>
+</head>
+<body>
+    <p>Redirecting to URL...</p>
+</body>
+</html>
