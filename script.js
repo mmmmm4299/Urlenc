@@ -7,8 +7,8 @@ function convertUrl() {
 
     const isHttps = input.startsWith('https://');
     const basePath = 'https://mmmmm4299.github.io/Urlenc/';
-    const path = isHttps ? 'hps-' : 'hp-';
-    const resultUrl = basePath + path + hexUrl.replace(/%/g, '-');
+    const path = isHttps ? 'hps/' : 'hp/';
+    const resultUrl = basePath + path + hexUrl;
 
     document.getElementById('hexOutput').innerHTML = `
         <a href="${resultUrl}" target="_blank">${resultUrl}</a>
